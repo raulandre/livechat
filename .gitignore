@@ -1,22 +1,22 @@
-# gitignore template for Phoenix projects
-# website: http://www.phoenixframework.org/
-#
-# Recommended template: Elixir.gitignore
+/_build/
+/deps/
+/doc/
+/node_modules/
+/tmp/
+/cover/
 
-# Temporary files
-/tmp
+/assets/node_modules/
 
-# Static artifacts
-/node_modules
-/assets/node_modules
+/installer/_build/
+/installer/assets/
+/installer/deps/
+/installer/doc/
+/installer/phx_new-*.ez
 
-# Since we are building assets from web/static,
-# we ignore priv/static. You may want to comment
-# this depending on your deployment strategy.
-/priv/static/
+/integration_test/_build/
+/integration_test/deps/
 
-# Installer-related files
-/installer/_build
-/installer/tmp
-/installer/doc
-/installer/deps
+erl_crash.dump
+phoenix-*.ez
+
+.DS_Store
