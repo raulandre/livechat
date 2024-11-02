@@ -3,7 +3,7 @@ defmodule LiveChatWeb.ChatLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket), do: Phoenix.PubSub.subscribe(LiveChat.PubSub, "add_message")
-  	{:ok, socket}
+    {:ok, socket}
   end
 
   def render(assigns) do
