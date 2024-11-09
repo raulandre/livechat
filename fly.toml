@@ -14,6 +14,7 @@ kill_signal = 'SIGTERM'
 
 [env]
   PHX_HOST = 'live-chat-black-fire-5714.fly.dev'
+  DNS_CLUSTER_QUERY = "live-chat-black-fire-5714.internal"
   PORT = '8080'
 
 [http_service]
