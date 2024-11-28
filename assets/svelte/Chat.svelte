@@ -50,7 +50,7 @@
     }
 
     function setUsername(event) {
-        if (event.key === 'Enter' || event.key === 'click') {
+        if (event.type === 'click' || event.key === 'Enter') {
             if (usernameInput.trim()) {
                 username = usernameInput;
                 live.pushEvent("user", { user: username, action: "join" }, () => {});
