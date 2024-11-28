@@ -1,6 +1,6 @@
 <script>
-    import { onMount } from "svelte";
-    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import { onMount, afterUpdate } from "svelte";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 
     export let live;
 
@@ -8,25 +8,36 @@
     let messages = [];
     let newMessage = "";
     let usernameInput = "";
+    let chatContainer;
 
     onMount(() => {
+        const storedUsername = localStorage.getItem("username");
+        if(storedUsername) {
+            username = storedUsername;
+        }
+
         live.handleEvent("add_message", (message) => {
-            messages = [ ...messages, message ];``
+            messages = [...messages, message];
         });
+
         live.handleEvent("notification", ({ message }) => {
             toast.push(message);
         });
 
-        window.addEventListener("beforeunload", (event) => {
+        window.addEventListener("beforeunload", () => {
             live.pushEvent("user", { user: username, action: "leave" }, () => {});
         });
     });
 
+    afterUpdate(() => {
+        scrollToBottom();
+    });
+
     function sendMessage() {
-        if(newMessage.trim()) {
+        if (newMessage.trim()) {
             let message = { user: username, text: newMessage };
             live.pushEvent("message", message, () => {});
-            messages = [ ...messages, message ];
+            messages = [...messages, message];
             newMessage = "";
         }
     }
@@ -39,11 +50,18 @@
     }
 
     function setUsername(event) {
-        if (event.key === 'Enter' || event.key == 'click') {
+        if (event.key === 'Enter' || event.key === 'click') {
             if (usernameInput.trim()) {
                 username = usernameInput;
                 live.pushEvent("user", { user: username, action: "join" }, () => {});
+                localStorage.setItem("username", username);
             }
+        }
+    }
+
+    function scrollToBottom() {
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     }
 </script>
@@ -67,7 +85,7 @@
     </div>
 {:else}
     <div class="flex flex-col h-screen">
-        <div class="flex-1 p-4 overflow-y-auto bg-gray-100 border rounded-lg max-h-[calc(100vh-200px)]">
+        <div bind:this={chatContainer} class="flex-1 p-4 overflow-y-auto bg-gray-100 border rounded-lg max-h-[calc(100vh-200px)]">
             {#each messages as message}
                 <div class="mb-2">
                     <div class="font-semibold">{message.user}</div>
