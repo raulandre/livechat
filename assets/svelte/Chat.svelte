@@ -23,7 +23,7 @@
     onMount(() => {
         const storedUsername = localStorage.getItem("username");
         if(storedUsername) {
-            username = usernameInput;
+            username = storedUsername;
             live.pushEvent("user", { user: username, action: "join" }, () => {});
         }
 
