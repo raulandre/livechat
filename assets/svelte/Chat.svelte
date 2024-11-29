@@ -5,7 +5,7 @@
     export let live;
 
     let username = null;
-    let messages = [];
+    export let messages = [];
     let newMessage = "";
     let usernameInput = "";
     let chatContainer;
@@ -15,6 +15,10 @@
         if(storedUsername) {
             username = storedUsername;
         }
+
+        live.handleEvent("clear", () => {
+            messages = [];
+        });
 
         live.handleEvent("add_message", (message) => {
             messages = [...messages, message];

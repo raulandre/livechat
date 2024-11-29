@@ -1,29 +1,48 @@
 defmodule LiveChatWeb.ChatLive do
   use LiveChatWeb, :live_view
 
+  alias LiveChat.Chat
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(LiveChat.PubSub, "add_message")
       Phoenix.PubSub.subscribe(LiveChat.PubSub, "user_update")
+      Phoenix.PubSub.subscribe(LiveChat.PubSub, "clear")
     end
-    {:ok, socket}
+
+    {:ok, assign(socket, :messages, Chat.list_messages())}
   end
 
   def render(assigns) do
     ~H"""
-    <.svelte name="Chat" socket={@socket} />
+    <.svelte name="Chat" socket={@socket} props={%{messages: @messages}}/>
     """
   end
 
   def handle_event("message", %{"user" => user, "text" => text}, socket) do
-    Phoenix.PubSub.broadcast_from(
-      LiveChat.PubSub,
-      self(),
-      "add_message",
-      {:new_message, %{user: user, text: text}}
-    )
+    if String.starts_with?(text, "/clear") do
+      Chat.delete_all_messages()
 
-    {:noreply, socket}
+      Phoenix.PubSub.broadcast_from(
+        LiveChat.PubSub,
+        self(),
+        "clear",
+        :clear
+      )
+
+      {:noreply, push_event(socket, "clear", %{})}
+    else
+      Chat.create_message(%{ username: user, message: text })
+
+      Phoenix.PubSub.broadcast_from(
+        LiveChat.PubSub,
+        self(),
+        "add_message",
+        {:new_message, %{user: user, text: text}}
+      )
+
+      {:noreply, socket}
+    end
   end
 
   def handle_event("user", %{"user" => user, "action" => action}, socket) do
@@ -39,6 +58,10 @@ defmodule LiveChatWeb.ChatLive do
 
   def handle_info({:new_message, message}, socket) do
     {:noreply, push_event(socket, "add_message", message)}
+  end
+
+  def handle_info(:clear, socket) do
+    {:noreply, push_event(socket, "clear", %{})}
   end
 
   def handle_info({:user_update, %{user: user, action: action}}, socket) do
