@@ -10,10 +10,20 @@
     let usernameInput = "";
     let chatContainer;
 
+    function setUsername(event) {
+        if (event.type === 'click' || event.key === 'Enter') {
+            if (usernameInput.trim()) {
+                username = usernameInput;
+                live.pushEvent("user", { user: username, action: "join" }, () => {});
+                localStorage.setItem("username", username);
+            }
+        }
+    }
+
     onMount(() => {
         const storedUsername = localStorage.getItem("username");
         if(storedUsername) {
-            username = storedUsername;
+            setUsername(storedUsername);
         }
 
         live.handleEvent("clear", () => {
@@ -50,16 +60,6 @@
         if (event.key === 'Enter') {
             event.preventDefault();
             sendMessage();
-        }
-    }
-
-    function setUsername(event) {
-        if (event.type === 'click' || event.key === 'Enter') {
-            if (usernameInput.trim()) {
-                username = usernameInput;
-                live.pushEvent("user", { user: username, action: "join" }, () => {});
-                localStorage.setItem("username", username);
-            }
         }
     }
 
